@@ -5,7 +5,7 @@ import './index.css';
 function Square(props) {
     return (
         <button 
-            className="square" 
+            className={props.styleSquare}
             onClick={props.onClick}
         >
             {props.value}
@@ -18,7 +18,8 @@ class Board extends React.Component {
     renderSquare(i) {
         return <Square 
                     value={this.props.squares[i]}
-                    onClick={() => this.props.onClick(i)}    
+                    onClick={() => this.props.onClick(i)}
+                    styleSquare={this.props.styleSquare[i]}
                 />;
     }
 
@@ -55,6 +56,7 @@ class Game extends React.Component {
             }],
             stepNumber: 0,
             xIsNext: true,
+            styleSquare: Array(9).fill('square')
         }
     }
 
@@ -62,6 +64,7 @@ class Game extends React.Component {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = [...current.squares];
+        const styleSquare = [...this.state.styleSquare];
 
         if(calculateWinner(squares) || squares[i]) {
             return;
@@ -72,6 +75,21 @@ class Game extends React.Component {
             history: history.concat([{squares: squares}]), 
             stepNumber: history.length,
             xIsNext: !this.state.xIsNext,
+        });
+
+        const winner = calculateWinner(squares);
+        if (winner) {
+            this.onWin(winner, styleSquare);
+        }
+    }
+
+    onWin(winner, styleSquare){
+        styleSquare[winner[0]] = "win";
+        styleSquare[winner[1]] = "win";
+        styleSquare[winner[2]] = "win";
+
+        this.setState({
+            styleSquare: styleSquare,
         });
     }
 
@@ -114,6 +132,7 @@ class Game extends React.Component {
                     <Board 
                         squares={current.squares}
                         onClick={(i) => this.handleClick(i)}
+                        styleSquare={this.state.styleSquare}
                     />
                 </div>
                 <div className="game-info">
